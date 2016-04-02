@@ -6,7 +6,7 @@ import std.stdio;
 import std.conv;
 import std.math;
 
-public import dsfml.window;
+public import dsfml.window : Keyboard;
 import dsfml.graphics;
 
 import danvas.events;
@@ -471,7 +471,7 @@ public:
 				
 				// Calculate the distance between the two vertices and the angle between them.
 				float distance = sqrt(pow(next.x - vertex.x, 2.0f) + pow(next.y - vertex.y, 2.0f));
-				float angle = atan((next.y - vertex.y) / (next.x - vertex.x)) * (180 / PI);
+				float angle = atan2((next.y - vertex.y), (next.x - vertex.x)) * (180 / PI);
 
 				RectangleShape line = new RectangleShape(Vector2f(distance, _lineWidth));
 
