@@ -47,11 +47,11 @@ class CanvasMouseEvent : CanvasEvent
 
 class CanvasKeyEvent : CanvasEvent
 {
-	Keyboard.Key code;
+	Keyboard.Key keyCode;
 
-	this(Keyboard.Key code)
+	this(Keyboard.Key keyCode)
 	{
-		this.code = code;
+		this.keyCode = keyCode;
 	}
 }
 
