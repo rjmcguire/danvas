@@ -59,11 +59,25 @@ private:
 			}
 			else if(rgbMatch.length == 5)
 			{
+				float a = to!float(rgbMatch[4]);
+
+				if(a < 0) 
+				{
+					a = 0.0f;
+				}
+
+				if(a > 1)
+				{
+					a = 1.0f;
+				}
+
+				a *= 255.0f;
+
 				return Color(
 					to!ubyte(rgbMatch[1]),
 					to!ubyte(rgbMatch[2]),
 					to!ubyte(rgbMatch[3]),
-					to!ubyte(to!float(rgbMatch[4]) * 255.0f)
+					to!ubyte(a)
 				);
 			}
 		}
@@ -200,6 +214,8 @@ private:
 	RenderWindow _sfmlWindow;
 	RenderingContext _context;
 	EventHandler _eventHandler;
+	float _delta;
+	Clock _deltaClock;
 
 public:
 	this(int width, int height, string title)
@@ -211,6 +227,9 @@ public:
 		_sfmlWindow = new RenderWindow(VideoMode(_width, _height), title, Window.Style.Close);
 		_context = new RenderingContext(this, _sfmlWindow);
 		_eventHandler = new EventHandler;
+
+		_deltaClock = new Clock;
+		_delta = 0.0f;
 	}
 
 	/*
@@ -218,7 +237,8 @@ public:
 	 */
 	void display()
 	{
-		_sfmlWindow.display();
+		_sfmlWindow.display();		
+		_delta = _deltaClock.restart().asSeconds() * 100.0f;
 	}
 
 	/*
@@ -285,7 +305,7 @@ public:
 					eventName = "mouseup";
 					canvasEvent = new CanvasMouseEvent(event.mouseButton.x, event.mouseButton.y).setWhich(event.mouseButton.button);
 					break;
-					
+
 				case Event.EventType.MouseMoved:
 					eventName = "mousemove";
 					canvasEvent = new CanvasMouseEvent(event.mouseMove.x, event.mouseMove.y);
@@ -321,6 +341,14 @@ public:
 	RenderingContext getContext() 
 	{
 		return _context;
+	}
+
+	/*
+	 * The current delta time.
+	 */
+	float getDelta()
+	{
+		return _delta;
 	}
 
 	/*
