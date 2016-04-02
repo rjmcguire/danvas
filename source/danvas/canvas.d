@@ -153,6 +153,20 @@ public:
 			rectangle.fillColor(_fillColor);
 		}
 
+		_sfmlWindow.draw(rectangle);
+	}
+
+	/*
+	 * Draws a rectangle outline around the given dimensions.
+	 */
+	void strokeRect(float x, float y, float width, float height)
+	{
+		RectangleShape rectangle = new RectangleShape(Vector2f(width, height));
+
+		rectangle.position(Vector2f(x, y));
+
+		rectangle.fillColor(Color.Transparent);
+
 		if(_strokeStyle !is null)
 		{
 			rectangle.outlineColor(_strokeColor);
@@ -238,32 +252,40 @@ public:
 				case Event.EventType.Resized:
 					eventName = "resize";
 					break;
+
 				case Event.EventType.LostFocus:
 					eventName = "unfocus";
 					break;
+
 				case Event.EventType.GainedFocus:
 					eventName = "focus";
 					break;
+
 				case Event.EventType.KeyPressed:
 					eventName = "keydown";
 					canvasEvent = new CanvasKeyEvent(event.key.code);
 					break;
+
 				case Event.EventType.KeyReleased:
 					eventName = "keyup";
 					canvasEvent = new CanvasKeyEvent(event.key.code);
 					break;
+
 				case Event.EventType.MouseWheelMoved:
 					eventName = "mousewheel";
 					canvasEvent = new CanvasMouseEvent(event.mouseWheel.x, event.mouseWheel.y).setDelta(event.mouseWheel.delta);
 					break;
+
 				case Event.EventType.MouseButtonPressed:
 					eventName = "mousedown";
 					canvasEvent = new CanvasMouseEvent(event.mouseButton.x, event.mouseButton.y).setWhich(event.mouseButton.button);
 					break;
+
 				case Event.EventType.MouseButtonReleased:
 					eventName = "mouseup";
 					canvasEvent = new CanvasMouseEvent(event.mouseButton.x, event.mouseButton.y).setWhich(event.mouseButton.button);
 					break;
+					
 				case Event.EventType.MouseMoved:
 					eventName = "mousemove";
 					canvasEvent = new CanvasMouseEvent(event.mouseMove.x, event.mouseMove.y);
