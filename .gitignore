@@ -11,3 +11,4 @@ dub.selections.json
 libs/
 
 source/tests.d
+source/app.d
