@@ -10,6 +10,17 @@ import dsfml.graphics;
 
 import danvas.events;
 
+class Size
+{
+	int width, height;
+
+	this(int width, int height)
+	{
+		this.width = width;
+		this.height = height;
+	}
+}
+
 class RenderingContext
 {
 private:
@@ -308,9 +319,9 @@ public:
 		Text text = new Text;
 
 		text.setFont(_parent.getFont(_fontName));
-		text.setString(value);
 		text.setCharacterSize(_fontSize);
 		text.setColor(_fillColor);
+		text.setString(value);
 
 
 		switch(_textAlign)
@@ -342,6 +353,29 @@ public:
 		text.position(Vector2f(x, y));
 
 		_sfmlWindow.draw(text);
+	}
+
+	/*
+	 * Returns the width and height of the given text.
+	 */
+	Size measureText(string value)
+	{
+		if(_fontString is null)
+		{
+			writeln("RenderingContext has no font.");
+			return new Size(-1, -1);
+		}
+
+		Text text = new Text;
+
+		text.setFont(_parent.getFont(_fontName));
+		text.setCharacterSize(_fontSize);
+		text.setString(value);
+
+		return new Size(
+			cast(int) text.getGlobalBounds().width, 
+			cast(int) text.getGlobalBounds().height
+		);
 	}
 }
 
