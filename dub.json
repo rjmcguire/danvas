@@ -1,0 +1,11 @@
+{
+	"name": "lanvas",
+	"description": "A lua wrapper that acts like HTML5 Canvas.",
+	"copyright": "Copyright © 2016, Jordan",
+	"authors": ["Jordan Fitzgerald"],
+	"dependencies": {
+		"luad": "~master",
+		"dsfml": "2.1.0"
+	},
+	"lflags": ["+.\\libs\\DSFML\\lib\\"]
+}
