@@ -5,7 +5,7 @@ import std.string;
 import std.stdio;
 import std.conv;
 
-import dsfml.window;
+public import dsfml.window;
 import dsfml.graphics;
 
 import danvas.events;
@@ -239,9 +239,11 @@ public:
 					break;
 				case Event.EventType.KeyPressed:
 					eventName = "keydown";
+					canvasEvent = new CanvasKeyEvent(event.key.code);
 					break;
 				case Event.EventType.KeyReleased:
 					eventName = "keyup";
+					canvasEvent = new CanvasKeyEvent(event.key.code);
 					break;
 				case Event.EventType.MouseWheelMoved:
 					eventName = "mousewheel";

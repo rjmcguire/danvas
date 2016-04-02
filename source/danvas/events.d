@@ -3,9 +3,7 @@ module danvas.events;
 import dsfml.window;
 
 class CanvasEvent
-{
-
-}
+{}
 
 class CanvasMouseEvent : CanvasEvent 
 {
@@ -44,6 +42,16 @@ class CanvasMouseEvent : CanvasEvent
 	{
 		this.delta = delta;
 		return this;
+	}
+}
+
+class CanvasKeyEvent : CanvasEvent
+{
+	Keyboard.Key code;
+
+	this(Keyboard.Key code)
+	{
+		this.code = code;
 	}
 }
 
