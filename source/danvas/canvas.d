@@ -13,6 +13,7 @@ import danvas.events;
 class RenderingContext
 {
 private:
+	Canvas _parent;
 	RenderWindow _sfmlWindow;
 
 	// Properties
@@ -75,8 +76,9 @@ private:
 	}
 
 public:
-	this(RenderWindow window)
+	this(Canvas parent, RenderWindow window)
 	{
+		_parent = parent;
 		_sfmlWindow = window;
 	}
 
@@ -162,11 +164,16 @@ public:
 	}
 
 	/*
-	 * Fills a portion of the screen with a white rectangle.
+	 * Fills a portion of the screen with a black rectangle.
 	 */
 	void clearRect(float x, float y, float width, float height)
 	{
+		string oldStyle = _fillStyle !is null ? _fillStyle : "#000000";
 
+		fillStyle("#000000");
+		fillRect(0, 0, _parent.width, _parent.height);
+
+		fillStyle(oldStyle);
 	}
 }
 
@@ -188,7 +195,7 @@ public:
 		_title = title;
 
 		_sfmlWindow = new RenderWindow(VideoMode(_width, _height), title, Window.Style.Close);
-		_context = new RenderingContext(_sfmlWindow);
+		_context = new RenderingContext(this, _sfmlWindow);
 		_eventHandler = new EventHandler;
 	}
 
