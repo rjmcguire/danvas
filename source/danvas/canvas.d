@@ -1,5 +1,10 @@
 module danvas.canvas;
 
+import std.regex;
+import std.string;
+import std.stdio;
+import std.conv;
+
 import dsfml.window;
 import dsfml.graphics;
 
@@ -11,8 +16,63 @@ private:
 	RenderWindow _sfmlWindow;
 
 	// Properties
-	string _fillStyle;
-	string _strokeStyle;
+	string _fillStyle = null;
+	string _strokeStyle = null;
+
+	uint _lineWidth = 1;
+
+	Color _fillColor;
+	Color _strokeColor;
+
+	// Converts a CSS color string to an SFML color.
+	Color _parseColor(string cssColor) 
+	{
+		cssColor = strip(cssColor);
+
+		auto hexRegex = regex(r"^#([A-Fa-f0-9]{6})$");
+		auto rgbRegex = regex(r"^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$");
+
+		auto hexMatch = matchFirst(cssColor, hexRegex);
+		auto rgbMatch = matchFirst(cssColor, rgbRegex);
+
+		if(!hexMatch.empty)
+		{
+			string stripped = hexMatch[0][1 .. $];
+			int hex = parse!int(stripped, 16);
+
+			ubyte r = ((hex >> 16) & 0xFF);
+			ubyte g = ((hex >> 8) & 0xFF);
+			ubyte b = ((hex) & 0xFF);
+
+			return Color(r, g, b);
+		}
+		else if (!rgbMatch.empty)
+		{
+			if(rgbMatch.length == 3) 
+			{
+				return Color(
+					to!ubyte(rgbMatch[0]),
+					to!ubyte(rgbMatch[1]),
+					to!ubyte(rgbMatch[2])
+				);
+			}
+			else if(rgbMatch.length == 4)
+			{
+				return Color(
+					to!ubyte(rgbMatch[0]),
+					to!ubyte(rgbMatch[1]),
+					to!ubyte(rgbMatch[2]),
+					to!ubyte(rgbMatch[3])
+				);
+			}
+		}
+		else
+		{
+			writeln("Failed to parse CSS color: " ~ cssColor);
+		}
+
+		return Color.Black;
+	}
 
 public:
 	this(RenderWindow window)
@@ -29,6 +89,8 @@ public:
 		string fillStyle(string fillStyle) 
 		{
 			_fillStyle = fillStyle;
+			_fillColor = _parseColor(_fillStyle);
+
 			return _fillStyle;
 		}
 
@@ -47,6 +109,8 @@ public:
 		string strokeStyle(string strokeStyle) 
 		{
 			_strokeStyle = strokeStyle;
+			_strokeColor = _parseColor(_strokeStyle);
+
 			return _strokeStyle;
 		}
 
@@ -57,9 +121,50 @@ public:
 	}
 
 	/*
+	 * The width of any line drawn by the context.
+	 */
+	@property
+	{
+		uint lineWidth(uint width)
+		{
+			_lineWidth = width;
+			return _lineWidth;
+		}
+
+		uint lineWidth()
+		{
+			return _lineWidth;
+		}
+	}
+
+	/*
+	 * Fills a portion of the screen with a rectangle of the given dimensions.
+	 */
+	void fillRect(float x, float y, float width, float height) 
+	{
+		RectangleShape rectangle = new RectangleShape(Vector2f(width, height));
+
+		rectangle.position(Vector2f(x, y));
+
+		if(_fillStyle !is null)
+		{
+			rectangle.fillColor(_fillColor);
+		}
+
+		if(_strokeStyle !is null)
+		{
+			rectangle.outlineColor(_strokeColor);
+		}
+
+		rectangle.outlineThickness(_lineWidth);
+
+		_sfmlWindow.draw(rectangle);
+	}
+
+	/*
 	 * Fills a portion of the screen with a white rectangle.
 	 */
-	void clearRect(int x, int y, int width, int height)
+	void clearRect(float x, float y, float width, float height)
 	{
 
 	}
@@ -119,6 +224,7 @@ public:
 			}
 
 			string eventName = null;
+			CanvasEvent canvasEvent = new CanvasEvent;
 
 			switch(event.type)
 			{
@@ -139,28 +245,32 @@ public:
 					break;
 				case Event.EventType.MouseWheelMoved:
 					eventName = "mousewheel";
+					canvasEvent = new CanvasMouseEvent(event.mouseWheel.x, event.mouseWheel.y).setDelta(event.mouseWheel.delta);
 					break;
 				case Event.EventType.MouseButtonPressed:
 					eventName = "mousedown";
+					canvasEvent = new CanvasMouseEvent(event.mouseButton.x, event.mouseButton.y).setWhich(event.mouseButton.button);
 					break;
 				case Event.EventType.MouseButtonReleased:
 					eventName = "mouseup";
+					canvasEvent = new CanvasMouseEvent(event.mouseButton.x, event.mouseButton.y).setWhich(event.mouseButton.button);
 					break;
 				case Event.EventType.MouseMoved:
 					eventName = "mousemove";
+					canvasEvent = new CanvasMouseEvent(event.mouseMove.x, event.mouseMove.y);
 					break;
 
 				default: break;
 			}
 
-			_eventHandler.callMethod(eventName, event);
+			_eventHandler.callMethod(eventName, canvasEvent);
 		}
 	}
 
 	/*
 	 * Registers an event within the event handler.
 	 */
-	void on(string eventName, void function(Event) method)
+	void on(string eventName, void function(CanvasEvent) method)
 	{
 		_eventHandler.registerEvent(eventName, method);
 	}
