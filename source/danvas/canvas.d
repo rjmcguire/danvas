@@ -517,10 +517,11 @@ public:
 	/*
 	 * Calls the internal SFML window's display method.
 	 */
-	void display()
+	void display(void function() callback)
 	{
 		_sfmlWindow.display();		
 		_delta = _deltaClock.restart().asSeconds() * 100.0f;
+		callback();
 	}
 
 	/*
