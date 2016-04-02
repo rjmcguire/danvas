@@ -310,11 +310,11 @@ public:
 	{
 		RectangleShape rectangle = new RectangleShape(Vector2f(width, height));
 
-		rectangle.position(Vector2f(x, y));
+		rectangle.position = Vector2f(x, y);
 
 		if(_fillStyle !is null)
 		{
-			rectangle.fillColor(_fillColor);
+			rectangle.fillColor = _fillColor;
 		}
 
 		_sfmlWindow.draw(rectangle);
@@ -327,16 +327,16 @@ public:
 	{
 		RectangleShape rectangle = new RectangleShape(Vector2f(width, height));
 
-		rectangle.position(Vector2f(x, y));
+		rectangle.position = Vector2f(x, y);
 
-		rectangle.fillColor(Color.Transparent);
+		rectangle.fillColor = Color.Transparent;
 
 		if(_strokeStyle !is null)
 		{
-			rectangle.outlineColor(_strokeColor);
+			rectangle.outlineColor = _strokeColor;
 		}
 
-		rectangle.outlineThickness(_lineWidth);
+		rectangle.outlineThickness = _lineWidth;
 
 		_sfmlWindow.draw(rectangle);
 	}
@@ -348,10 +348,10 @@ public:
 	{
 		string oldStyle = _fillStyle !is null ? _fillStyle : "#000000";
 
-		fillStyle("#000000");
+		fillStyle = "#000000";
 		fillRect(x, y, width, height);
 
-		fillStyle(oldStyle);
+		fillStyle = oldStyle;
 	}
 
 	/*
@@ -371,7 +371,6 @@ public:
 		text.setCharacterSize(_fontSize);
 		text.setColor(_fillColor);
 		text.setString(value);
-
 
 		switch(_textAlign)
 		{
@@ -399,7 +398,7 @@ public:
 			default: break;
 		}
 
-		text.position(Vector2f(x, y));
+		text.position = Vector2f(x, y);
 
 		_sfmlWindow.draw(text);
 	}
@@ -461,9 +460,6 @@ public:
 	{
 		if(_lineVertices.length > 1)
 		{
-			string oldStyle = _fillStyle;
-			fillStyle(_strokeStyle);
-
 			foreach(i, vertex; _lineVertices)
 			{
 				if(i >= _lineVertices.length - 1) 
@@ -473,20 +469,19 @@ public:
 
 				Vector2f next = _lineVertices[i + 1];
 				
+				// Calculate the distance between the two vertices and the angle between them.
 				float distance = sqrt(pow(next.x - vertex.x, 2.0f) + pow(next.y - vertex.y, 2.0f));
 				float angle = atan((next.y - vertex.y) / (next.x - vertex.x)) * (180 / PI);
 
 				RectangleShape line = new RectangleShape(Vector2f(distance, _lineWidth));
 
-				line.position(vertex);
-				line.rotation(angle);
+				line.position = vertex;
+				line.rotation = angle;
 
-				line.fillColor(_fillColor);
+				line.fillColor = _strokeColor;
 
 				_sfmlWindow.draw(line);
 			}
-
-			fillStyle(oldStyle);
 		}
 	}
 }
