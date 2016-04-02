@@ -4,11 +4,55 @@ import std.regex;
 import std.string;
 import std.stdio;
 import std.conv;
+import std.math;
 
 public import dsfml.window;
 import dsfml.graphics;
 
 import danvas.events;
+
+class Image
+{
+private:
+	Texture _sfmlTexture;
+	string _source;
+
+public:
+	this()
+	{
+		_source = null;
+	}
+
+	this(string source)
+	{
+		src(source);
+	}
+
+	/*
+	 * The file path of the image.
+	 * When set, _texture will be loaded from the given source.
+	 */
+	@property
+	{
+		string src(string source)
+		{
+			_source = source;
+			_sfmlTexture = new Texture;
+
+			if(!_sfmlTexture.loadFromFile(_source))
+			{
+				stderr.writeln("Failed to load image: " ~ source);
+			}
+
+			return _source;
+		}
+
+		string src()
+		{
+			return _source;
+		}
+	}
+}
 
 class Size
 {
@@ -42,6 +86,8 @@ private:
 
 	string _textAlign = "left";
 	string _textBaseline = "top";
+
+	Vector2f[] _lineVertices;
 
 	// Converts a CSS color string to an SFML color.
 	Color _parseColor(string cssColor) 
@@ -77,6 +123,9 @@ private:
 			}
 			else if(rgbMatch.length == 5)
 			{
+				// CSS RGBA alpha values are from 0.0 to 1.0, whereas SFML uses 0-255.
+				// For this reason, the given alpha is bounds checks and multiplied by 255.
+
 				float a = to!float(rgbMatch[4]);
 
 				if(a < 0) 
@@ -204,7 +253,7 @@ public:
 
 	/*
 	 * The text align of the context. 
-	 * This deteremines the X offset of any text drawn in the context.
+	 * This determines the X offset of any text drawn in the context.
 	 */
 	@property
 	{
@@ -230,7 +279,7 @@ public:
 
 	/*
 	 * The text baseline of the context. 
-	 * This deteremines the Y offset of any text drawn in the context.
+	 * This determines the Y offset of any text drawn in the context.
 	 */
 	@property
 	{
@@ -376,6 +425,69 @@ public:
 			cast(int) text.getGlobalBounds().width, 
 			cast(int) text.getGlobalBounds().height
 		);
+	}
+
+	/*
+	 * Resets the list of vertices in the current line.
+	 */
+	void beginPath()
+	{
+		_lineVertices = [];
+	}
+
+	/*
+	 * Moves the starting point of the current line to the given coordinates.
+	 */
+	void moveTo(float x, float y)
+	{
+		if(_lineVertices.length == 0)
+		{
+			_lineVertices ~= Vector2f(x, y);
+		}
+	}
+
+	/*
+	 * Functions the same as moveTo, without a vertices length test.
+	 */
+	void lineTo(float x, float y)
+	{
+		_lineVertices ~= Vector2f(x, y);
+	}
+
+	/*
+	 * Renders the line vertices.
+	 */
+	void stroke()
+	{
+		if(_lineVertices.length > 1)
+		{
+			string oldStyle = _fillStyle;
+			fillStyle(_strokeStyle);
+
+			foreach(i, vertex; _lineVertices)
+			{
+				if(i >= _lineVertices.length - 1) 
+				{
+					break;
+				}
+
+				Vector2f next = _lineVertices[i + 1];
+				
+				float distance = sqrt(pow(next.x - vertex.x, 2.0f) + pow(next.y - vertex.y, 2.0f));
+				float angle = atan((next.y - vertex.y) / (next.x - vertex.x)) * (180 / PI);
+
+				RectangleShape line = new RectangleShape(Vector2f(distance, _lineWidth));
+
+				line.position(vertex);
+				line.rotation(angle);
+
+				line.fillColor(_fillColor);
+
+				_sfmlWindow.draw(line);
+			}
+
+			fillStyle(oldStyle);
+		}
 	}
 }
 
