@@ -25,6 +25,13 @@ private:
 	Color _fillColor;
 	Color _strokeColor;
 
+	string _fontString = null;
+	string _fontName = null;
+	uint _fontSize;
+
+	string _textAlign = "left";
+	string _textBaseline = "top";
+
 	// Converts a CSS color string to an SFML color.
 	Color _parseColor(string cssColor) 
 	{
@@ -154,6 +161,89 @@ public:
 	}
 
 	/*
+	 * The context's current font.
+	 */
+	@property
+	{
+		string font(string fontString)
+		{
+			_fontString = fontString;
+
+			auto fontStringRegex = regex(r"^(\d+)px\s*(.+)$");
+			auto fontStringMatch = matchFirst(_fontString, fontStringRegex);
+
+			if(!fontStringMatch.empty)
+			{
+				_fontSize = to!uint(fontStringMatch[1]);
+				_fontName = fontStringMatch[2];
+			}
+			else
+			{
+				writeln("Invalid font string: " ~ _fontString);
+			}
+
+			return _fontString;
+		}
+
+		string font()
+		{
+			return _fontString;
+		}
+	}
+
+	/*
+	 * The text align of the context. 
+	 * This deteremines the X offset of any text drawn in the context.
+	 */
+	@property
+	{
+		string textAlign(string textAlign)
+		{
+			if(cmp(textAlign, "right") == 0 || cmp(textAlign, "center") == 0 || cmp(textAlign, "left") == 0)
+			{
+				_textAlign = textAlign;
+			}
+			else
+			{
+				writeln("Invalid textAlign: " ~ textAlign);
+			}
+
+			return textAlign;
+		}
+
+		string textAlign()
+		{
+			return _textAlign;
+		}
+	}
+
+	/*
+	 * The text baseline of the context. 
+	 * This deteremines the Y offset of any text drawn in the context.
+	 */
+	@property
+	{
+		string textBaseline(string textBaseline)
+		{
+			if(cmp(textBaseline, "top") == 0 || cmp(textBaseline, "middle") == 0 || cmp(textBaseline, "bottom") == 0)
+			{
+				_textBaseline = textBaseline;
+			}
+			else
+			{
+				writeln("Invalid textBaseline: " ~ textBaseline);
+			}
+
+			return textBaseline;
+		}
+
+		string textBaseline()
+		{
+			return _textBaseline;
+		}
+	}
+
+	/*
 	 * Fills a portion of the screen with a rectangle of the given dimensions.
 	 */
 	void fillRect(float x, float y, float width, float height) 
@@ -203,6 +293,56 @@ public:
 
 		fillStyle(oldStyle);
 	}
+
+	/*
+	 * Draws a text with the context's current font.
+	 */
+	void fillText(string value, float x, float y)
+	{
+		if(_fontString is null)
+		{
+			writeln("RenderingContext has no font.");
+			return;
+		}
+
+		Text text = new Text;
+
+		text.setFont(_parent.getFont(_fontName));
+		text.setString(value);
+		text.setCharacterSize(_fontSize);
+		text.setColor(_fillColor);
+
+
+		switch(_textAlign)
+		{
+			case "center":
+				x -= text.getGlobalBounds().width / 2;
+				break;
+
+			case "right":
+				x -= text.getGlobalBounds().width;
+				break;
+
+			default: break;
+		}
+
+		switch(_textBaseline)
+		{
+			case "middle":
+				y -= text.getGlobalBounds().height / 2;
+				break;
+
+			case "bottom":
+				y -= text.getGlobalBounds().height;
+				break;
+
+			default: break;
+		}
+
+		text.position(Vector2f(x, y));
+
+		_sfmlWindow.draw(text);
+	}
 }
 
 class Canvas 
@@ -216,6 +356,7 @@ private:
 	EventHandler _eventHandler;
 	float _delta;
 	Clock _deltaClock;
+	Font[string] _fonts;
 
 public:
 	this(int width, int height, string title)
@@ -333,6 +474,40 @@ public:
 	void fire(string eventName)
 	{
 		_eventHandler.callMethod(eventName, new CanvasEvent);
+	}
+
+	/*
+	 * Loads a given font file and adds it to the _fonts table with the given name.
+	 */
+	void loadFont(string name, string path)
+	{
+		Font font = new Font;
+
+		if(!font.loadFromFile(path))
+		{
+			stderr.writeln("Failed to load font: " ~ path);
+		} 
+		else
+		{
+			_fonts[name] = font;
+		}
+	}
+
+	/*
+	 * Returns a font with the given name, for use in RenderingContext.
+	 */
+	Font getFont(string name)
+	{
+		if(name in _fonts)
+		{
+			return _fonts[name];
+		}
+		else
+		{
+			writeln("Nonexistent font: " ~ name);
+		}
+
+		return null;
 	}
 
 	/*
