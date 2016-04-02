@@ -38,7 +38,7 @@ private:
 
 		if(!hexMatch.empty)
 		{
-			string stripped = hexMatch[0][1 .. $];
+			string stripped = hexMatch[1];
 			int hex = parse!int(stripped, 16);
 
 			ubyte r = ((hex >> 16) & 0xFF);
@@ -49,21 +49,21 @@ private:
 		}
 		else if (!rgbMatch.empty)
 		{
-			if(rgbMatch.length == 3) 
+			if(rgbMatch.length == 4) 
 			{
 				return Color(
-					to!ubyte(rgbMatch[0]),
-					to!ubyte(rgbMatch[1]),
-					to!ubyte(rgbMatch[2])
-				);
-			}
-			else if(rgbMatch.length == 4)
-			{
-				return Color(
-					to!ubyte(rgbMatch[0]),
 					to!ubyte(rgbMatch[1]),
 					to!ubyte(rgbMatch[2]),
 					to!ubyte(rgbMatch[3])
+				);
+			}
+			else if(rgbMatch.length == 5)
+			{
+				return Color(
+					to!ubyte(rgbMatch[1]),
+					to!ubyte(rgbMatch[2]),
+					to!ubyte(rgbMatch[3]),
+					to!ubyte(to!float(rgbMatch[4]) * 255.0f)
 				);
 			}
 		}
@@ -171,7 +171,7 @@ public:
 		string oldStyle = _fillStyle !is null ? _fillStyle : "#000000";
 
 		fillStyle("#000000");
-		fillRect(0, 0, _parent.width, _parent.height);
+		fillRect(x, y, width, height);
 
 		fillStyle(oldStyle);
 	}
@@ -282,6 +282,15 @@ public:
 	void on(string eventName, void function(CanvasEvent) method)
 	{
 		_eventHandler.registerEvent(eventName, method);
+	}
+
+	/*
+	 * Fires an even with the given name. 
+	 * This is useful for custom events.
+	 */
+	void fire(string eventName)
+	{
+		_eventHandler.callMethod(eventName, new CanvasEvent);
 	}
 
 	/*
