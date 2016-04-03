@@ -115,20 +115,14 @@ private:
 		}
 		else if (!rgbMatch.empty)
 		{
-			if(rgbMatch.length == 4) 
-			{
-				return Color(
-					to!ubyte(rgbMatch[1]),
-					to!ubyte(rgbMatch[2]),
-					to!ubyte(rgbMatch[3])
-				);
-			}
-			else if(rgbMatch.length == 5)
+			float a = 255;
+
+			if(rgbMatch[4].length > 0)
 			{
 				// CSS RGBA alpha values are from 0.0 to 1.0, whereas SFML uses 0-255.
 				// For this reason, the given alpha is bounds checks and multiplied by 255.
 
-				float a = to!float(rgbMatch[4]);
+				a = to!float(rgbMatch[4]);
 
 				if(a < 0) 
 				{
@@ -141,14 +135,14 @@ private:
 				}
 
 				a *= 255.0f;
-
-				return Color(
-					to!ubyte(rgbMatch[1]),
-					to!ubyte(rgbMatch[2]),
-					to!ubyte(rgbMatch[3]),
-					to!ubyte(a)
-				);
 			}
+
+			return Color(
+				to!ubyte(rgbMatch[1]),
+				to!ubyte(rgbMatch[2]),
+				to!ubyte(rgbMatch[3]),
+				to!ubyte(a)
+			);
 		}
 		else
 		{
@@ -582,6 +576,7 @@ public:
 		Sprite sprite = new Sprite(image._sfmlTexture);
 		FloatRect spriteRect = sprite.getLocalBounds();
 
+		// Calculate a float from 0.0-1.0 that describes how much to scale the sprite.
 		float scaleX = width / spriteRect.width;
 		float scaleY = height / spriteRect.height;
 
@@ -607,6 +602,7 @@ public:
 
 		FloatRect spriteRect = sprite.getLocalBounds();
 		
+		// Calculate a float from 0.0-1.0 that describes how much to scale the sprite.
 		float scaleX = width / spriteRect.width;
 		float scaleY = height / spriteRect.height;
 
@@ -672,7 +668,9 @@ public:
 	}
 
 	/*
-	 * Handles SFML events and converts them to canvas-like event name strings.
+	 * Handles SFML events and converts them to a CanvasEvent.
+	 * The Close type is hard coded to close the window. 
+	 * The "resized" event will resize the view as well.
 	 */
 	void dispatchEvents()
 	{
@@ -684,6 +682,11 @@ public:
 			{
 				_sfmlWindow.close();
 				return;
+			}
+			// Resize the window's view if the window itself is resized.
+			else if(event.type == Event.EventType.Resized)
+			{
+				_sfmlWindow.view = new View(FloatRect(0.0f, 0.0f, _width, _height));
 			}
 
 			string eventName = null;
@@ -706,31 +709,49 @@ public:
 				case Event.EventType.KeyPressed:
 					eventName = "keydown";
 					canvasEvent = new CanvasKeyEvent(event.key.code);
+
 					break;
 
 				case Event.EventType.KeyReleased:
 					eventName = "keyup";
 					canvasEvent = new CanvasKeyEvent(event.key.code);
+
 					break;
 
 				case Event.EventType.MouseWheelMoved:
 					eventName = "mousewheel";
-					canvasEvent = new CanvasMouseEvent(event.mouseWheel.x, event.mouseWheel.y).setDelta(event.mouseWheel.delta);
+					
+					canvasEvent = new CanvasMouseEvent(
+						event.mouseWheel.x, 
+						event.mouseWheel.y
+					).setDelta(event.mouseWheel.delta);
+
 					break;
 
 				case Event.EventType.MouseButtonPressed:
 					eventName = "mousedown";
-					canvasEvent = new CanvasMouseEvent(event.mouseButton.x, event.mouseButton.y).setWhich(event.mouseButton.button);
+					
+					canvasEvent = new CanvasMouseEvent(
+						event.mouseButton.x,
+						event.mouseButton.y
+					).setWhich(event.mouseButton.button);
+
 					break;
 
 				case Event.EventType.MouseButtonReleased:
 					eventName = "mouseup";
-					canvasEvent = new CanvasMouseEvent(event.mouseButton.x, event.mouseButton.y).setWhich(event.mouseButton.button);
+					
+					canvasEvent = new CanvasMouseEvent(
+						event.mouseButton.x,
+						event.mouseButton.y
+					).setWhich(event.mouseButton.button);
+
 					break;
 
 				case Event.EventType.MouseMoved:
 					eventName = "mousemove";
 					canvasEvent = new CanvasMouseEvent(event.mouseMove.x, event.mouseMove.y);
+
 					break;
 
 				default: break;
