@@ -76,6 +76,7 @@ private:
 	string _strokeStyle = null;
 
 	uint _lineWidth = 1;
+	string _lineCap = "butt";
 
 	Color _fillColor;
 	Color _strokeColor;
@@ -154,6 +155,28 @@ private:
 		}
 
 		return Color.Black;
+	}
+
+	Shape _getLineCap()
+	{
+		switch(_lineCap)
+		{
+			case "round":
+				CircleShape cap = new CircleShape(_lineWidth / 2.0f);
+				cap.fillColor = _strokeColor;
+
+				return cap;
+
+			case "square":
+				RectangleShape cap = new RectangleShape(Vector2f(_lineWidth, _lineWidth));
+				cap.fillColor = _strokeColor;
+
+				return cap;
+
+			default: break;
+		}
+
+		return null;
 	}
 
 public:
@@ -300,6 +323,32 @@ public:
 		string textBaseline()
 		{
 			return _textBaseline;
+		}
+	}
+
+	/*
+	 * The style of line cap draw on all lines.
+	 * Options are butt, round, and square.
+	 */
+	@property
+	{
+		string lineCap(string lineCap)
+		{
+			if(cmp(lineCap, "butt") == 0 || cmp(lineCap, "round") == 0 || cmp(lineCap, "square") == 0)
+			{
+				_lineCap = lineCap;
+			}
+			else
+			{
+				writeln("Invalid lineCap: " ~ lineCap);
+			}
+
+			return lineCap;
+		}
+
+		string lineCap()
+		{
+			return _lineCap;
 		}
 	}
 
@@ -462,25 +511,46 @@ public:
 		{
 			foreach(i, vertex; _lineVertices)
 			{
+				Vector2f next;
+				float distance, angle;
+
 				if(i >= _lineVertices.length - 1) 
 				{
-					break;
+					next = _lineVertices[i - 1];
+				}
+				else
+				{
+					next = _lineVertices[i + 1];
+
+					// Calculate the distance between the two vertices and the angle between them.
+					distance = sqrt(pow(next.x - vertex.x, 2.0f) + pow(next.y - vertex.y, 2.0f));
+					angle = atan2((next.y - vertex.y), (next.x - vertex.x)) * (180 / PI);
+
+					RectangleShape line = new RectangleShape(Vector2f(distance, _lineWidth));
+
+					line.position = vertex;
+					line.origin = Vector2f(0, _lineWidth / 2.0f);
+					line.rotation = angle;
+
+					line.fillColor = _strokeColor;
+
+					_sfmlWindow.draw(line);
 				}
 
-				Vector2f next = _lineVertices[i + 1];
-				
 				// Calculate the distance between the two vertices and the angle between them.
-				float distance = sqrt(pow(next.x - vertex.x, 2.0f) + pow(next.y - vertex.y, 2.0f));
-				float angle = atan2((next.y - vertex.y), (next.x - vertex.x)) * (180 / PI);
+				distance = sqrt(pow(next.x - vertex.x, 2.0f) + pow(next.y - vertex.y, 2.0f));
+				angle = atan2((next.y - vertex.y), (next.x - vertex.x)) * (180 / PI);
 
-				RectangleShape line = new RectangleShape(Vector2f(distance, _lineWidth));
+				if(cmp(_lineCap, "butt") != 0)
+				{
+					Shape cap = _getLineCap();
 
-				line.position = vertex;
-				line.rotation = angle;
+					cap.position = vertex;
+					cap.origin = Vector2f(_lineWidth / 2.0f, _lineWidth / 2.0f);
+					cap.rotation = angle;
 
-				line.fillColor = _strokeColor;
-
-				_sfmlWindow.draw(line);
+					_sfmlWindow.draw(cap);
+				}
 			}
 		}
 	}
@@ -517,10 +587,18 @@ public:
 	/*
 	 * Calls the internal SFML window's display method.
 	 */
-	void display(void function() callback)
+	void display()
 	{
 		_sfmlWindow.display();		
 		_delta = _deltaClock.restart().asSeconds() * 100.0f;
+	}
+
+	/*
+	 * Calls the canvas's display method and then calls the next frame callback.
+	 */
+	void display(void function() callback)
+	{
+		display();
 		callback();
 	}
 
