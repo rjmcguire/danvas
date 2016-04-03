@@ -503,6 +503,14 @@ public:
 	}
 
 	/*
+	 * Adds a point equal to the first point in the line.
+	 */
+	void closePath()
+	{
+		lineTo(_lineVertices[0].x, _lineVertices[0].y);
+	}
+
+	/*
 	 * Renders the line vertices.
 	 */
 	void stroke()
