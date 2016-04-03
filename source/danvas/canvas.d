@@ -14,10 +14,11 @@ import danvas.events;
 class Image
 {
 private:
-	Texture _sfmlTexture;
 	string _source;
 
 public:
+	Texture _sfmlTexture;
+
 	this()
 	{
 		_source = null;
@@ -25,7 +26,7 @@ public:
 
 	this(string source)
 	{
-		src(source);
+		src = source;
 	}
 
 	/*
@@ -561,6 +562,58 @@ public:
 				}
 			}
 		}
+	}
+
+	/*
+	 * Renders an Image at the given location.
+	 */
+	void drawImage(Image image, float x, float y)
+	{
+		Sprite sprite = new Sprite(image._sfmlTexture);
+		sprite.position = Vector2f(x, y);
+		_sfmlWindow.draw(sprite);
+	}
+
+	/*
+	 * Renders an Image at the given location with the given dimensions.
+	 */
+	void drawImage(Image image, float x, float y, float width, float height)
+	{
+		Sprite sprite = new Sprite(image._sfmlTexture);
+		FloatRect spriteRect = sprite.getLocalBounds();
+
+		float scaleX = width / spriteRect.width;
+		float scaleY = height / spriteRect.height;
+
+		sprite.position = Vector2f(x, y);
+		sprite.scale = Vector2f(scaleX, scaleY);
+
+		_sfmlWindow.draw(sprite);
+	}
+
+	/*
+	 * Renders an Image at the given location, withe the given dimensions and with the given cropping.
+	 */
+	void drawImage(Image image, float sourceX, float sourceY, float sourceWidth, float sourceHeight, float x, float y, float width, float height)
+	{
+		Sprite sprite = new Sprite(image._sfmlTexture);
+
+		sprite.textureRect = IntRect(
+			cast(int) sourceX, 
+			cast(int) sourceY, 
+			cast(int) sourceWidth, 
+			cast(int) sourceHeight
+		);
+
+		FloatRect spriteRect = sprite.getLocalBounds();
+		
+		float scaleX = width / spriteRect.width;
+		float scaleY = height / spriteRect.height;
+
+		sprite.position = Vector2f(x, y);
+		sprite.scale = Vector2f(scaleX, scaleY);
+
+		_sfmlWindow.draw(sprite);
 	}
 }
 
