@@ -1,0 +1,11 @@
+{
+	"name": "danvas",
+	"description": "An emulation of HTML5's Canvas API for DSFML.",
+	"copyright": "Copyright © 2016, Jordan",
+	"authors": ["Jordan Fitzgerald"],
+	"license": "MIT",
+	"dependencies": {
+		"dsfml": "2.1.0"
+	},
+	"lflags": ["+libs\\DSFML\\lib\\"]
+}

@@ -1,10 +1,10 @@
 ## danvas
-_An emulation of HTML5's Canvas API for [DSFML](https://github.com/Jebbs/DSFML/)_
+_An emulation of HTML5's [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) for [DSFML](https://github.com/Jebbs/DSFML/)_
 
 #### Prerequisites  
 
-The only library requirement is [DSFML](http://jebbs.github.io/DSFML/downloads.html).  
-Note: This has only been tested on Windows.
+The only external requirement is [DSFML](http://jebbs.github.io/DSFML/downloads.html).
+Note: I've only tested this on Windows 10.
 
 #### Why?
 
