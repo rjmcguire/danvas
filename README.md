@@ -3,7 +3,7 @@ _An emulation of HTML5's [Canvas API](https://developer.mozilla.org/en-US/docs/W
 
 #### Prerequisites  
 
-The only external requirement is [DSFML](http://jebbs.github.io/DSFML/downloads.html).
+The only external requirement is [DSFML](http://jebbs.github.io/DSFML/downloads.html).  
 Note: I've only tested this on Windows 10.
 
 #### Why?
