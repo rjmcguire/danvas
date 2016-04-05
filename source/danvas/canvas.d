@@ -216,6 +216,14 @@ public:
 	}
 
 	/*
+	 * Returns the internal SFML window in case it's needed. 
+	 */
+	RenderWindow getWindow()
+	{
+		return _sfmlWindow;
+	}
+
+	/*
 	 * The current delta time.
 	 */
 	float getDelta()

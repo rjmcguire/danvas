@@ -1,5 +1,5 @@
 ## danvas
-_An emulation of HTML5's [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) for [DSFML](https://github.com/Jebbs/DSFML/)_
+An emulation of HTML5's [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) for [DSFML](https://github.com/Jebbs/DSFML/)
 
 #### Prerequisites  
 

@@ -1,7 +1,7 @@
 {
 	"name": "danvas",
 	"description": "An emulation of HTML5's Canvas API for DSFML.",
-	"copyright": "Copyright © 2016, Jordan",
+	"copyright": "Copyright © 2016, Jordan Fitzgerald",
 	"authors": ["Jordan Fitzgerald"],
 	"license": "MIT",
 	"dependencies": {

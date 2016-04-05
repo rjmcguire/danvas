@@ -48,10 +48,17 @@ private:
 
 	Vector2f[] _lineVertices;
 
+	Color[string] _colorCache;
+
 	// Converts a CSS color string to an SFML color.
 	Color _parseColor(string cssColor) 
 	{
 		cssColor = strip(cssColor);
+
+		if(cssColor in _colorCache)
+		{
+			return _colorCache[cssColor];
+		}
 
 		auto hexRegex = regex(r"^#([A-Fa-f0-9]{6})$");
 		auto rgbRegex = regex(r"^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$");
@@ -68,7 +75,9 @@ private:
 			ubyte g = ((hex >> 8) & 0xFF);
 			ubyte b = ((hex) & 0xFF);
 
-			return Color(r, g, b);
+			_colorCache[cssColor] = Color(r, g, b);
+
+			return _colorCache[cssColor];
 		}
 		else if (!rgbMatch.empty)
 		{
@@ -94,12 +103,14 @@ private:
 				a *= 255.0f;
 			}
 
-			return Color(
+			_colorCache[cssColor] = Color(
 				to!ubyte(rgbMatch[1]),
 				to!ubyte(rgbMatch[2]),
 				to!ubyte(rgbMatch[3]),
 				to!ubyte(a)
 			);
+
+			return _colorCache[cssColor];
 		}
 		else
 		{
