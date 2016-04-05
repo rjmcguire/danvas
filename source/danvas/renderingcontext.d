@@ -48,78 +48,6 @@ private:
 
 	Vector2f[] _lineVertices;
 
-	Color[string] _colorCache;
-
-	// Converts a CSS color string to an SFML color.
-	Color _parseColor(string cssColor) 
-	{
-		cssColor = strip(cssColor);
-
-		if(cssColor in _colorCache)
-		{
-			return _colorCache[cssColor];
-		}
-
-		auto hexRegex = regex(r"^#([A-Fa-f0-9]{6})$");
-		auto rgbRegex = regex(r"^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$");
-
-		auto hexMatch = matchFirst(cssColor, hexRegex);
-		auto rgbMatch = matchFirst(cssColor, rgbRegex);
-
-		if(!hexMatch.empty)
-		{
-			string stripped = hexMatch[1];
-			int hex = parse!int(stripped, 16);
-
-			ubyte r = ((hex >> 16) & 0xFF);
-			ubyte g = ((hex >> 8) & 0xFF);
-			ubyte b = ((hex) & 0xFF);
-
-			_colorCache[cssColor] = Color(r, g, b);
-
-			return _colorCache[cssColor];
-		}
-		else if (!rgbMatch.empty)
-		{
-			float a = 255;
-
-			if(rgbMatch[4].length > 0)
-			{
-				// CSS RGBA alpha values are from 0.0 to 1.0, whereas SFML uses 0-255.
-				// For this reason, the given alpha is bounds checks and multiplied by 255.
-
-				a = to!float(rgbMatch[4]);
-
-				if(a < 0) 
-				{
-					a = 0.0f;
-				}
-
-				if(a > 1)
-				{
-					a = 1.0f;
-				}
-
-				a *= 255.0f;
-			}
-
-			_colorCache[cssColor] = Color(
-				to!ubyte(rgbMatch[1]),
-				to!ubyte(rgbMatch[2]),
-				to!ubyte(rgbMatch[3]),
-				to!ubyte(a)
-			);
-
-			return _colorCache[cssColor];
-		}
-		else
-		{
-			writeln("Failed to parse CSS color: " ~ cssColor);
-		}
-
-		return Color.Black;
-	}
-
 	Shape _getLineCap()
 	{
 		switch(_lineCap)
@@ -158,7 +86,7 @@ public:
 		string fillStyle(string fillStyle) 
 		{
 			_fillStyle = fillStyle;
-			_fillColor = _parseColor(_fillStyle);
+			_fillColor = Canvas.parseColor(_fillStyle);
 
 			return _fillStyle;
 		}
@@ -178,7 +106,7 @@ public:
 		string strokeStyle(string strokeStyle) 
 		{
 			_strokeStyle = strokeStyle;
-			_strokeColor = _parseColor(_strokeStyle);
+			_strokeColor = Canvas.parseColor(_strokeStyle);
 
 			return _strokeStyle;
 		}
