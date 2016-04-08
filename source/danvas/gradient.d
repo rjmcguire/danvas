@@ -1,20 +1,9 @@
 module danvas.gradient;
 
-import dsfml.graphics: Image, Color;
+import std.math;
 
-import danvas.canvas;
+import dsfml.graphics: Image, Color, Vector2f;
 
-class CanvasGradient
+class LinearGradient
 {
-private:
-	Color[int] _colorStops;
-
-public:
-	/*
-	 * Adds a color at the given index to the color stops map.
-	 */
-	void addColorStop(uint index, string cssColor)
-	{
-		Color color = Canvas.parseColor(cssColor);
-	}
 }
