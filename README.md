@@ -11,7 +11,7 @@ Note: I've only tested this on Windows 10.
 I'm personally a fan of the Canvas API and how easy it is to build little graphical projects. However, I'm not much of a fan of some of the things that JavaScript does. So, I decided to write a wrapper for DSFML (D being a fun and easy to use language) which works similarly to the Canvas API. Here's a basic example of the library at work: 
 
 ```D
-import danvas.all;
+import danvas;
 
 Canvas canvas;
 RenderingContext context;
